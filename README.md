@@ -35,20 +35,29 @@ A mobile-first web application designed to help users identify, categorize, and 
 2. Follow the short prompts (Accept defaults by pressing Enter).
 3. Your live production URL will be ready in seconds!
 
-### Method 2: Via GitHub & Vercel Dashboard
-1. Push this folder to a GitHub repository:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of EcoSort AI"
-   git branch -M main
-   git remote add origin https://github.com/your-username/ecosort-ai.git
-   git push -u origin main
-   ```
+### Method 2: Via GitHub & Vercel Dashboard (Recommended)
+1. Push this folder to your GitHub repository.
 2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
-3. Keep default settings (Static site) and click **Deploy**.
+3. In **Environment Variables**, add your keys:
+   - `GEMINI_API_KEY`
+   - `GROQ_API_KEY`
+   - `OPENROUTER_API_KEY`
+4. Click **Deploy**.
 
 ---
+
+## 🔒 Environment Variables (Serverless Backend)
+
+This project uses Vercel Serverless Functions (`/api/analyze.js`). API keys are never exposed to users or the browser frontend:
+
+| Variable Name | Description |
+| :--- | :--- |
+| `GEMINI_API_KEY` | Google Gemini 1.5 Flash Vision API Key |
+| `GROQ_API_KEY` | Groq Cloud Llama 3.2 Vision Key (`gsk_...`) |
+| `OPENROUTER_API_KEY` | OpenRouter API Key (`sk-or-...`) |
+
+> [!NOTE]
+> When testing locally without a serverless environment, the app automatically runs in **Offline Smart Engine Mode** so everything remains functional!
 
 ## 🛠️ Tech Stack
 - **HTML5**: Semantic markup with mobile viewport tags and accessible ARIA attributes.

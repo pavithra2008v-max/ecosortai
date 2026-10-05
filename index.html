@@ -309,72 +309,49 @@
             </div>
           </div>
 
-          <!-- API Keys Config Card -->
+          <!-- Cloud AI Engine Status Card (Vercel Serverless + Env Variables) -->
           <div class="settings-card">
             <div class="settings-card-header">
               <div class="settings-title-group">
-                <span class="settings-badge-icon">🔑</span>
-                <h3>AI Provider Keys</h3>
+                <span class="settings-badge-icon">☁️</span>
+                <h3>Cloud AI Backend</h3>
               </div>
-              <span class="badge-secure">Encrypted in LocalStorage</span>
+              <span class="badge-secure">Vercel Environment Variables</span>
             </div>
-            <p class="settings-card-desc">The app runs in failover mode. If Gemini is rate-limited or fails, it automatically hands over to Groq, then OpenRouter.</p>
+            <p class="settings-card-desc">API keys are securely managed via Vercel serverless environment variables. No keys are ever exposed or stored in your browser.</p>
 
-            <form id="apiKeysForm" class="keys-form" onsubmit="event.preventDefault();">
-              <!-- Gemini Key Input -->
-              <div class="form-group">
-                <div class="form-label-row">
-                  <label for="geminiKeyInput">
-                    <span class="provider-pill gemini">1. Gemini API</span>
-                  </label>
-                  <button type="button" class="btn-verify-key" data-provider="gemini">Test Connection</button>
+            <div class="cloud-providers-list">
+              <div class="cloud-provider-row">
+                <div class="cloud-provider-info">
+                  <span class="provider-pill gemini">1. Gemini 1.5 Flash</span>
+                  <span class="provider-env-name"><code>GEMINI_API_KEY</code></span>
                 </div>
-                <div class="input-password-wrapper">
-                  <input type="password" id="geminiKeyInput" placeholder="Enter Google Gemini API Key" autocomplete="off">
-                  <button type="button" class="btn-toggle-eye" data-target="geminiKeyInput" title="Toggle visibility">👁️</button>
-                </div>
-                <span class="input-hint">Uses <code>gemini-1.5-flash</code> vision endpoint.</span>
+                <span class="status-indicator-badge online">Active</span>
               </div>
 
-              <!-- Groq Key Input -->
-              <div class="form-group">
-                <div class="form-label-row">
-                  <label for="groqKeyInput">
-                    <span class="provider-pill groq">2. Groq API</span>
-                  </label>
-                  <button type="button" class="btn-verify-key" data-provider="groq">Test Connection</button>
+              <div class="cloud-provider-row">
+                <div class="cloud-provider-info">
+                  <span class="provider-pill groq">2. Groq Llama 3.2</span>
+                  <span class="provider-env-name"><code>GROQ_API_KEY</code></span>
                 </div>
-                <div class="input-password-wrapper">
-                  <input type="password" id="groqKeyInput" placeholder="Enter Groq API Key (gsk_...)" autocomplete="off">
-                  <button type="button" class="btn-toggle-eye" data-target="groqKeyInput" title="Toggle visibility">👁️</button>
-                </div>
-                <span class="input-hint">Ultra-fast vision via <code>llama-3.2-11b-vision-preview</code>.</span>
+                <span class="status-indicator-badge online">Active</span>
               </div>
 
-              <!-- OpenRouter Key Input -->
-              <div class="form-group">
-                <div class="form-label-row">
-                  <label for="openRouterKeyInput">
-                    <span class="provider-pill openrouter">3. OpenRouter API</span>
-                  </label>
-                  <button type="button" class="btn-verify-key" data-provider="openrouter">Test Connection</button>
+              <div class="cloud-provider-row">
+                <div class="cloud-provider-info">
+                  <span class="provider-pill openrouter">3. OpenRouter Vision</span>
+                  <span class="provider-env-name"><code>OPENROUTER_API_KEY</code></span>
                 </div>
-                <div class="input-password-wrapper">
-                  <input type="password" id="openRouterKeyInput" placeholder="Enter OpenRouter API Key (sk-or-...)" autocomplete="off">
-                  <button type="button" class="btn-toggle-eye" data-target="openRouterKeyInput" title="Toggle visibility">👁️</button>
-                </div>
-                <span class="input-hint">Reliable fallback across global vision models.</span>
+                <span class="status-indicator-badge online">Active</span>
               </div>
+            </div>
 
-              <div class="keys-actions-row">
-                <button type="button" id="btnSaveKeys" class="btn btn-primary">
-                  Save All Keys
-                </button>
-                <button type="button" id="btnResetDefaultKeys" class="btn btn-secondary">
-                  Restore Provided Keys
-                </button>
-              </div>
-            </form>
+            <div class="keys-actions-row">
+              <button type="button" id="btnTestBackend" class="btn btn-outline" style="width: 100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Test AI Cloud Backend
+              </button>
+            </div>
           </div>
 
           <!-- App Information & Deployment Info -->

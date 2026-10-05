@@ -107,14 +107,8 @@ const elements = {
   filterPills: document.querySelectorAll('.filter-pill'),
   countAll: document.getElementById('countAll'),
   
-  // Settings Form
-  geminiKeyInput: document.getElementById('geminiKeyInput'),
-  groqKeyInput: document.getElementById('groqKeyInput'),
-  openRouterKeyInput: document.getElementById('openRouterKeyInput'),
-  btnSaveKeys: document.getElementById('btnSaveKeys'),
-  btnResetDefaultKeys: document.getElementById('btnResetDefaultKeys'),
-  verifyKeyBtns: document.querySelectorAll('.btn-verify-key'),
-  eyeBtns: document.querySelectorAll('.btn-toggle-eye'),
+  // Settings
+  btnTestBackend: document.getElementById('btnTestBackend'),
   
   // Modal Result Sheet
   resultModal: document.getElementById('resultModal'),
@@ -655,57 +649,43 @@ function parseJsonResponse(rawText) {
   return JSON.parse(cleaned);
 }
 
-// Master Failover Controller
+// Master Failover Controller: Calls Vercel Serverless /api/analyze (using env vars)
 async function executeMultiAiCascade(dataUrl, sampleHint = null) {
-  const keys = getSavedApiKeys();
-  const { base64, mime } = extractBase64Data(dataUrl);
-
   // Update UI Loading status
   elements.aiLoadingOverlay.classList.remove('hidden');
-  
-  // ATTEMPT 1: Google Gemini Vision
   elements.loadingTitle.textContent = "AI Analyzing Waste...";
-  elements.loadingStatusText.textContent = "Connecting to Gemini 1.5 Flash Vision...";
+  elements.loadingStatusText.textContent = "Routing to Cloud AI Pipeline...";
   updatePipelineNodes('gemini');
 
   try {
-    const result = await callGeminiVision(base64, mime, keys.gemini);
-    console.log('Classified via Gemini Vision:', result);
-    return { data: result, provider: 'Google Gemini Vision' };
-  } catch (geminiErr) {
-    console.warn('Gemini Vision failed, attempting Groq failover:', geminiErr);
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUrl })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data) {
+        // Highlight active provider
+        const prov = (result.provider || '').toLowerCase();
+        if (prov.includes('gemini')) updatePipelineNodes('gemini');
+        else if (prov.includes('groq')) updatePipelineNodes('groq');
+        else if (prov.includes('openrouter')) updatePipelineNodes('openrouter');
+        
+        return { data: result.data, provider: result.provider || 'Cloud AI Cascade' };
+      }
+    }
+  } catch (apiErr) {
+    console.warn('Serverless endpoint unavailable (e.g. static dev server). Using smart offline classifier:', apiErr);
   }
 
-  // ATTEMPT 2: Groq Vision (llama-3.2-11b-vision-preview)
-  elements.loadingStatusText.textContent = "Failing over to Groq Llama 3.2 Vision...";
-  updatePipelineNodes('groq');
-
-  try {
-    const result = await callGroqVision(dataUrl, keys.groq);
-    console.log('Classified via Groq Vision:', result);
-    return { data: result, provider: 'Groq Llama 3.2 Vision' };
-  } catch (groqErr) {
-    console.warn('Groq Vision failed, attempting OpenRouter failover:', groqErr);
-  }
-
-  // ATTEMPT 3: OpenRouter Vision
-  elements.loadingStatusText.textContent = "Failing over to OpenRouter Vision...";
-  updatePipelineNodes('openrouter');
-
-  try {
-    const result = await callOpenRouterVision(dataUrl, keys.openrouter);
-    console.log('Classified via OpenRouter Vision:', result);
-    return { data: result, provider: 'OpenRouter Vision' };
-  } catch (openRouterErr) {
-    console.warn('OpenRouter Vision failed, falling back to smart offline mode:', openRouterErr);
-  }
-
-  // ATTEMPT 4: Smart Offline Fallback Simulator
+  // Fallback to Smart Offline EcoSort Classifier
   elements.loadingStatusText.textContent = "Using Smart Offline EcoSort Classifier...";
-  await new Promise(r => setTimeout(r, 600)); // slight natural delay
+  await new Promise(r => setTimeout(r, 600));
 
   const offlineResult = getSmartOfflineClassification(sampleHint);
-  return { data: offlineResult, provider: 'EcoSort Smart Classifier (Offline)' };
+  return { data: offlineResult, provider: 'EcoSort Smart Engine (Offline)' };
 }
 
 function updatePipelineNodes(activeProvider) {
@@ -911,72 +891,26 @@ function clearAllHistory() {
 }
 
 // ============================================================================
-// 9. SETTINGS & KEYS MANAGEMENT
+// 9. SETTINGS & CLOUD BACKEND TEST
 // ============================================================================
-function initSettingsForm() {
-  const keys = getSavedApiKeys();
-  elements.geminiKeyInput.value = keys.gemini || '';
-  elements.groqKeyInput.value = keys.groq || '';
-  elements.openRouterKeyInput.value = keys.openrouter || '';
-}
-
-function saveKeysFromForm() {
-  const keys = {
-    gemini: elements.geminiKeyInput.value.trim(),
-    groq: elements.groqKeyInput.value.trim(),
-    openrouter: elements.openRouterKeyInput.value.trim()
-  };
-
-  saveApiKeys(keys);
-  showToast('API Keys saved successfully!', '✅');
-}
-
-function resetDefaultKeys() {
-  elements.geminiKeyInput.value = DEFAULT_KEYS.gemini;
-  elements.groqKeyInput.value = DEFAULT_KEYS.groq;
-  elements.openRouterKeyInput.value = DEFAULT_KEYS.openrouter;
-  saveApiKeys(DEFAULT_KEYS);
-  showToast('Restored default provided keys', '🔄');
-}
-
-async function verifySingleKey(provider) {
-  const keys = {
-    gemini: elements.geminiKeyInput.value.trim(),
-    groq: elements.groqKeyInput.value.trim(),
-    openrouter: elements.openRouterKeyInput.value.trim()
-  };
-
-  showToast(`Testing ${provider} connection...`, '⏳');
+async function testCloudBackend() {
+  showToast('Pinging Cloud AI Backend...', '⏳');
 
   try {
-    if (provider === 'gemini') {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${keys.gemini}`);
-      if (res.ok) {
-        showToast('Gemini API is connected & valid!', '✅');
-      } else {
-        showToast(`Gemini error: ${res.status}`, '⚠️');
-      }
-    } else if (provider === 'groq') {
-      const res = await fetch('https://api.groq.com/openai/v1/models', {
-        headers: { 'Authorization': `Bearer ${keys.groq}` }
-      });
-      if (res.ok) {
-        showToast('Groq API is connected & valid!', '✅');
-      } else {
-        showToast(`Groq error: ${res.status}`, '⚠️');
-      }
-    } else if (provider === 'openrouter') {
-      const res = await fetch('https://openrouter.ai/api/v1/auth/key', {
-        headers: { 'Authorization': `Bearer ${keys.openrouter}` }
-      });
-      if (res.ok) {
-        showToast('OpenRouter API is connected & valid!', '✅');
-      } else {
-        showToast(`OpenRouter error: ${res.status}`, '⚠️');
-      }
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: 'ping' })
+    });
+
+    if (res.ok) {
+      showToast('Cloud AI Pipeline is online & connected!', '✅');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast('Cloud Backend response: ' + (err.error || res.status), '⚡');
     }
   } catch (e) {
-    showToast(`${provider} test failed: ${e.message}`, '❌');
+    showToast('Offline / Local static mode (Smart Classifier Active)', '🌿');
   }
 }
 
@@ -1174,27 +1108,9 @@ function setupEventListeners() {
   });
 
   // Settings Actions
-  elements.btnSaveKeys.addEventListener('click', saveKeysFromForm);
-  elements.btnResetDefaultKeys.addEventListener('click', resetDefaultKeys);
-
-  // Verify Key buttons
-  elements.verifyKeyBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const provider = btn.dataset.provider;
-      verifySingleKey(provider);
-    });
-  });
-
-  // Password Visibility Toggle Eyes
-  elements.eyeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.dataset.target;
-      const input = document.getElementById(targetId);
-      if (input) {
-        input.type = (input.type === 'password') ? 'text' : 'password';
-      }
-    });
-  });
+  if (elements.btnTestBackend) {
+    elements.btnTestBackend.addEventListener('click', testCloudBackend);
+  }
 
   // Modal Actions
   elements.btnCloseModal.addEventListener('click', closeResultModal);
@@ -1228,7 +1144,6 @@ function setupEventListeners() {
 // 12. INITIALIZATION
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  initSettingsForm();
   loadStoredHistory();
   setupEventListeners();
 

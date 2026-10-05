@@ -1156,6 +1156,51 @@ html, body {
 .provider-pill.groq { background: #fef3c7; color: #b45309; }
 .provider-pill.openrouter { background: #f3e8ff; color: #7e22ce; }
 
+/* Cloud Provider Backend List */
+.cloud-providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.cloud-provider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.cloud-provider-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.provider-env-name code {
+  font-size: 0.72rem;
+  background: white;
+  border: 1px solid var(--border-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.status-indicator-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+
+.status-indicator-badge.online {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
 .btn-verify-key {
   background: none;
   border: 1px solid var(--border-light);
