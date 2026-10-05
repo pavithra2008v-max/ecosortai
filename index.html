@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#10b981">
+  <meta name="description" content="EcoSort AI - Smart Waste Sorting and Recycling Assistant powered by Multi-AI Cascade (Gemini, Groq, OpenRouter)">
+  <title>EcoSort AI | Smart Waste Sorting & Recycling Assistant</title>
+  
+  <!-- Modern Typography (Plus Jakarta Sans & Outfit) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+</head>
+<body>
+  <!-- Background Ambience on Desktop -->
+  <div class="desktop-bg-decorator"></div>
+
+  <!-- Mobile App Frame Container -->
+  <div class="app-viewport">
+    
+    <!-- Top Status Bar & App Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon-wrapper">
+          <svg class="brand-leaf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">EcoSort <span class="ai-badge">AI</span></h1>
+          <p class="brand-subtitle">Smart Recycling Guide</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live AI Cascade Status Indicator -->
+        <button id="aiStatusPill" class="ai-status-pill" title="Click to view AI Failover status" aria-label="AI Status">
+          <span class="pulse-dot"></span>
+          <span id="aiActiveProviderName">Groq Active</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main class="app-content">
+
+      <!-- ================= SCREEN 1: HOME ================= -->
+      <section id="screenHome" class="screen-view active">
+        <!-- Hero Banner Card -->
+        <div class="eco-hero-card">
+          <div class="hero-content">
+            <span class="eco-tag">Eco-Friendly Assistant</span>
+            <h2 class="hero-title">Snap, Sort & Save Our Planet</h2>
+            <p class="hero-desc">Scan any waste item. Our AI instantly identifies recyclable materials, proper bins, and upcycle ideas.</p>
+            <button id="heroScanBtn" class="btn btn-primary btn-glow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Scan Waste Now
+            </button>
+          </div>
+          <div class="hero-illustration">
+            <div class="eco-orb">♻️</div>
+          </div>
+        </div>
+
+        <!-- Impact Stats Counter -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon">📸</span>
+            <div class="stat-info">
+              <h3 id="statTotalScans" class="stat-number">0</h3>
+              <p class="stat-label">Items Scanned</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">♻️</span>
+            <div class="stat-info">
+              <h3 id="statRecycled" class="stat-number">0</h3>
+              <p class="stat-label">Recycled</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">🌱</span>
+            <div class="stat-info">
+              <h3 id="statCompost" class="stat-number">0</h3>
+              <p class="stat-label">Composted</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">⚡</span>
+            <div class="stat-info">
+              <h3 id="statSavedEco" class="stat-number">0 kg</h3>
+              <p class="stat-label">CO₂ Offset</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Demo Items (Tap to Test without Camera) -->
+        <div class="section-block">
+          <div class="section-header">
+            <h3 class="section-title">Quick Test Samples</h3>
+            <span class="section-badge">Instant Demo</span>
+          </div>
+          <p class="section-subtitle">No item around? Tap any sample to see AI classification in action:</p>
+          <div class="quick-samples-carousel">
+            <button class="sample-chip" data-sample="plastic_bottle">
+              <span class="chip-emoji">🧴</span>
+              <span class="chip-name">Plastic Bottle</span>
+            </button>
+            <button class="sample-chip" data-sample="aluminum_can">
+              <span class="chip-emoji">🥫</span>
+              <span class="chip-name">Soda Can</span>
+            </button>
+            <button class="sample-chip" data-sample="banana_peel">
+              <span class="chip-emoji">🍌</span>
+              <span class="chip-name">Banana Peel</span>
+            </button>
+            <button class="sample-chip" data-sample="cardboard_box">
+              <span class="chip-emoji">📦</span>
+              <span class="chip-name">Cardboard</span>
+            </button>
+            <button class="sample-chip" data-sample="old_battery">
+              <span class="chip-emoji">🔋</span>
+              <span class="chip-name">Lithium Battery</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Failover Pipeline Status Card -->
+        <div class="section-block">
+          <div class="cascade-info-card">
+            <div class="cascade-card-header">
+              <div class="cascade-title-row">
+                <svg class="cascade-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <h4>Auto-Failover AI Engine</h4>
+              </div>
+              <span class="cascade-badge">Active & Ready</span>
+            </div>
+            <p class="cascade-text">Automatic failover between Gemini, Groq & OpenRouter guarantees uninterrupted analysis even during API rate limits.</p>
+            <div class="pipeline-chain">
+              <div class="pipeline-node active" id="nodeGemini">
+                <span class="node-num">1</span>
+                <span class="node-label">Gemini Vision</span>
+              </div>
+              <span class="pipeline-arrow">➔</span>
+              <div class="pipeline-node active" id="nodeGroq">
+                <span class="node-num">2</span>
+                <span class="node-label">Groq Llama Vision</span>
+              </div>
+              <span class="pipeline-arrow">➔</span>
+              <div class="pipeline-node active" id="nodeOpenRouter">
+                <span class="node-num">3</span>
+                <span class="node-label">OpenRouter</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eco Tip of the Day -->
+        <div class="tip-card">
+          <div class="tip-icon">💡</div>
+          <div class="tip-body">
+            <h4 class="tip-title">Eco Tip of the Day</h4>
+            <p id="dailyTipText" class="tip-text">Always rinse plastic and tin containers before tossing into recycling bins. Food contamination can send whole batches to landfill!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 2: SCANNER ================= -->
+      <section id="screenScan" class="screen-view">
+        <div class="scanner-container">
+          
+          <!-- Mode Selector (Live Camera vs Upload File) -->
+          <div class="scan-tabs">
+            <button id="btnTabCamera" class="scan-tab-btn active" data-mode="camera">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Live Camera
+            </button>
+            <button id="btnTabUpload" class="scan-tab-btn" data-mode="upload">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Upload Photo
+            </button>
+          </div>
+
+          <!-- Viewfinder Frame for Camera Mode -->
+          <div id="cameraViewfinder" class="viewfinder-box">
+            <video id="videoFeed" playsinline autoplay muted></video>
+            <canvas id="captureCanvas" class="hidden"></canvas>
+
+            <!-- Scanning Laser Animation & Crosshair Reticle -->
+            <div id="scannerOverlay" class="scanner-overlay">
+              <div class="target-corner tl"></div>
+              <div class="target-corner tr"></div>
+              <div class="target-corner bl"></div>
+              <div class="target-corner br"></div>
+              <div class="scan-laser"></div>
+              <div class="scan-target-text">Align waste item inside frame</div>
+            </div>
+
+            <!-- Camera Floating Controls -->
+            <div class="camera-controls-bar">
+              <button id="btnFlipCamera" class="cam-icon-btn" title="Switch Camera" aria-label="Switch Camera">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 3.2 1.88 5.96 4.6 7.27L7 20h6v-6l-2.18 2.18C9.07 15.08 8 13.18 8 11c0-2.21 1.79-4 4-4s4 1.79 4 4"/></svg>
+              </button>
+              <button id="btnStartStopCam" class="cam-icon-btn" title="Toggle Camera Feed" aria-label="Toggle Camera">
+                <svg id="camPowerIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+              </button>
+            </div>
+
+            <!-- Permission Fallback Banner -->
+            <div id="camPermissionBanner" class="cam-fallback-banner hidden">
+              <span class="fallback-icon">📷</span>
+              <p>Camera access is disabled or unavailable in this browser session.</p>
+              <button id="btnRetryCam" class="btn btn-sm btn-secondary">Request Access</button>
+              <button id="btnSwitchToUpload" class="btn btn-sm btn-primary">Switch to Upload</button>
+            </div>
+          </div>
+
+          <!-- File Upload Drop Zone (Hidden by default, active in upload mode) -->
+          <div id="uploadDropZone" class="upload-dropzone hidden">
+            <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">
+            <div class="dropzone-content">
+              <div class="upload-icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <h4 class="upload-title">Choose or Drop Waste Image</h4>
+              <p class="upload-subtitle">Supports JPG, PNG, WEBP, HEIC</p>
+              <button id="btnBrowseFile" class="btn btn-outline">
+                Browse Files
+              </button>
+            </div>
+          </div>
+
+          <!-- Captured / Selected Preview Strip -->
+          <div id="imagePreviewBox" class="image-preview-container hidden">
+            <img id="previewImg" src="" alt="Waste Image Preview">
+            <div class="preview-actions">
+              <button id="btnRetake" class="btn btn-sm btn-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.2 7.2L2.5 8M2 12.5a10 10 0 0 0 18.8 4.3l.7-.8"/></svg>
+                Retake
+              </button>
+              <button id="btnAnalyzeNow" class="btn btn-sm btn-primary btn-pulse">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Analyze with AI
+              </button>
+            </div>
+          </div>
+
+          <!-- Big Snap Shutter Button (For Camera Mode) -->
+          <div id="cameraShutterArea" class="shutter-action-area">
+            <button id="btnSnapPhoto" class="shutter-btn" aria-label="Take Photo">
+              <span class="shutter-inner"></span>
+            </button>
+            <span class="shutter-caption">Tap to Capture & Analyze</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 3: HISTORY ================= -->
+      <section id="screenHistory" class="screen-view">
+        <div class="history-container">
+          <div class="screen-top-bar">
+            <div>
+              <h2 class="screen-heading">Scan History</h2>
+              <p class="screen-subtext">All your classified items & carbon impact</p>
+            </div>
+            <button id="btnClearHistory" class="btn-text-danger" title="Clear All History">
+              Clear All
+            </button>
+          </div>
+
+          <!-- History Filter Pills -->
+          <div class="filter-pills-row">
+            <button class="filter-pill active" data-filter="all">All (<span id="countAll">0</span>)</button>
+            <button class="filter-pill" data-filter="Recyclable">♻️ Recyclable</button>
+            <button class="filter-pill" data-filter="Compostable">🌱 Compost</button>
+            <button class="filter-pill" data-filter="E-Waste">⚡ E-Waste</button>
+            <button class="filter-pill" data-filter="Landfill">🗑️ Landfill</button>
+          </div>
+
+          <!-- History Items List -->
+          <div id="historyList" class="history-items-list">
+            <!-- Populated via JavaScript -->
+          </div>
+
+          <!-- Empty History Placeholder -->
+          <div id="emptyHistoryState" class="empty-state">
+            <div class="empty-icon">🌱</div>
+            <h3>No Scans Yet</h3>
+            <p>Snap a photo of plastic, paper, food scraps or e-waste to start your eco journey!</p>
+            <button id="btnEmptyScanCTA" class="btn btn-primary">Scan First Item</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SCREEN 4: SETTINGS ================= -->
+      <section id="screenSettings" class="screen-view">
+        <div class="settings-container">
+          <div class="screen-top-bar">
+            <div>
+              <h2 class="screen-heading">AI & App Settings</h2>
+              <p class="screen-subtext">Manage multi-provider API keys and preferences</p>
+            </div>
+          </div>
+
+          <!-- API Keys Config Card -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-title-group">
+                <span class="settings-badge-icon">🔑</span>
+                <h3>AI Provider Keys</h3>
+              </div>
+              <span class="badge-secure">Encrypted in LocalStorage</span>
+            </div>
+            <p class="settings-card-desc">The app runs in failover mode. If Gemini is rate-limited or fails, it automatically hands over to Groq, then OpenRouter.</p>
+
+            <form id="apiKeysForm" class="keys-form" onsubmit="event.preventDefault();">
+              <!-- Gemini Key Input -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label for="geminiKeyInput">
+                    <span class="provider-pill gemini">1. Gemini API</span>
+                  </label>
+                  <button type="button" class="btn-verify-key" data-provider="gemini">Test Connection</button>
+                </div>
+                <div class="input-password-wrapper">
+                  <input type="password" id="geminiKeyInput" placeholder="Enter Google Gemini API Key" autocomplete="off">
+                  <button type="button" class="btn-toggle-eye" data-target="geminiKeyInput" title="Toggle visibility">👁️</button>
+                </div>
+                <span class="input-hint">Uses <code>gemini-1.5-flash</code> vision endpoint.</span>
+              </div>
+
+              <!-- Groq Key Input -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label for="groqKeyInput">
+                    <span class="provider-pill groq">2. Groq API</span>
+                  </label>
+                  <button type="button" class="btn-verify-key" data-provider="groq">Test Connection</button>
+                </div>
+                <div class="input-password-wrapper">
+                  <input type="password" id="groqKeyInput" placeholder="Enter Groq API Key (gsk_...)" autocomplete="off">
+                  <button type="button" class="btn-toggle-eye" data-target="groqKeyInput" title="Toggle visibility">👁️</button>
+                </div>
+                <span class="input-hint">Ultra-fast vision via <code>llama-3.2-11b-vision-preview</code>.</span>
+              </div>
+
+              <!-- OpenRouter Key Input -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label for="openRouterKeyInput">
+                    <span class="provider-pill openrouter">3. OpenRouter API</span>
+                  </label>
+                  <button type="button" class="btn-verify-key" data-provider="openrouter">Test Connection</button>
+                </div>
+                <div class="input-password-wrapper">
+                  <input type="password" id="openRouterKeyInput" placeholder="Enter OpenRouter API Key (sk-or-...)" autocomplete="off">
+                  <button type="button" class="btn-toggle-eye" data-target="openRouterKeyInput" title="Toggle visibility">👁️</button>
+                </div>
+                <span class="input-hint">Reliable fallback across global vision models.</span>
+              </div>
+
+              <div class="keys-actions-row">
+                <button type="button" id="btnSaveKeys" class="btn btn-primary">
+                  Save All Keys
+                </button>
+                <button type="button" id="btnResetDefaultKeys" class="btn btn-secondary">
+                  Restore Provided Keys
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- App Information & Deployment Info -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div class="settings-title-group">
+                <span class="settings-badge-icon">🚀</span>
+                <h3>Vercel Ready Deployment</h3>
+              </div>
+            </div>
+            <p class="settings-card-desc">This application is built with standard pure HTML5, CSS3, and modern ES6 JavaScript. No build step or heavy node server needed.</p>
+            <div class="deployment-pills">
+              <span class="pill-chip">⚡ 100% Static HTML/CSS/JS</span>
+              <span class="pill-chip">🔒 Zero Server Storage</span>
+              <span class="pill-chip">📱 PWA Compatible</span>
+              <span class="pill-chip">🌍 Ready for Vercel / Netlify</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= MODAL: SCAN RESULT BOTTOM SHEET ================= -->
+    <div id="resultModal" class="modal-backdrop hidden">
+      <div class="modal-bottom-sheet">
+        <div class="modal-drag-handle"></div>
+        
+        <!-- Modal Top Bar -->
+        <div class="modal-header">
+          <div class="modal-provider-badge" id="resultAiBadge">
+            <span class="sparkle-icon">⚡</span>
+            <span id="resultProviderName">AI Classified</span>
+          </div>
+          <button id="btnCloseModal" class="modal-close-btn" aria-label="Close Result">✕</button>
+        </div>
+
+        <!-- Result Body -->
+        <div class="modal-body">
+          
+          <!-- Item Header & Classification Card -->
+          <div class="result-hero-box">
+            <div class="result-img-wrap">
+              <img id="resultThumb" src="" alt="Scanned Waste Item">
+            </div>
+            <div class="result-meta-info">
+              <span id="resultCategoryBadge" class="category-pill recyclable">Recyclable</span>
+              <h3 id="resultItemName" class="result-item-name">PET Plastic Bottle</h3>
+              <p id="resultMaterial" class="result-material">Material: Polyethylene Terephthalate (#1)</p>
+              <div id="resultBinCard" class="result-bin-badge">
+                <span class="bin-icon">🗑️</span>
+                <span>Dispose in: <strong id="resultBinColor">Blue Recycling Bin</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Structured Action Steps -->
+          <div class="result-section-box">
+            <h4 class="box-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Preparation & Disposal Steps
+            </h4>
+            <ol id="resultStepsList" class="steps-ordered-list">
+              <li>Empty all liquid and rinse bottle clean.</li>
+              <li>Leave cap securely tightened or separate per local rule.</li>
+              <li>Crush bottle flat to conserve collection volume.</li>
+            </ol>
+          </div>
+
+          <!-- Creative Upcycle / Reuse Tip -->
+          <div class="result-section-box upcycle-box">
+            <h4 class="box-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              Creative Reuse / Upcycle Idea
+            </h4>
+            <p id="resultReuseTip" class="upcycle-text">Cut the bottom half to create a mini herb planter or self-watering seedling pot.</p>
+          </div>
+
+          <!-- Environmental Impact Note -->
+          <div class="result-section-box eco-impact-box">
+            <h4 class="box-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+              Eco Impact
+            </h4>
+            <p id="resultEcoImpact" class="eco-impact-text">Recycling saves ~70% energy compared to producing new virgin plastic and keeps ocean ecosystems clean.</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="modal-footer-actions">
+            <button id="btnModalSaveShare" class="btn btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Saved to History
+            </button>
+            <button id="btnModalScanAgain" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Scan Another
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= LOADING SPINNER OVERLAY ================= -->
+    <div id="aiLoadingOverlay" class="loading-overlay hidden">
+      <div class="loading-card">
+        <div class="loading-spinner-ring">
+          <div class="spinner-leaf">🌱</div>
+        </div>
+        <h3 id="loadingTitle">AI Analyzing Waste...</h3>
+        <p id="loadingStatusText">Querying Gemini Vision...</p>
+        <div class="failover-meter">
+          <div class="meter-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= FLOATING TOAST NOTIFICATIONS ================= -->
+    <div id="toastNotification" class="toast-box hidden">
+      <span id="toastIcon">🔔</span>
+      <span id="toastMessage">Notification message</span>
+    </div>
+
+    <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="screenHome">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </button>
+
+      <button class="nav-item nav-scan-bubble" data-tab="screenScan" id="navScanCTA">
+        <div class="scan-bubble-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <span>Scan</span>
+      </button>
+
+      <button class="nav-item" data-tab="screenHistory">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+        <span>History</span>
+      </button>
+
+      <button class="nav-item" data-tab="screenSettings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
